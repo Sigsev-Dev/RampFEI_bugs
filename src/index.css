@@ -149,8 +149,14 @@ hr.RampBreak--l {
   background-color: var(--color-constructive);
 }
 
+/*Display type being set to none rendered the checkbox useless. Allowed the input to overlap the visual box and hid it, functions properly now. */
 .RampInputCheckbox--input {
-  display: none;
+  display: flex;
+  position: absolute;
+  width: 1.25rem;
+  height: 1.25rem;
+  opacity: 0;
+  cursor: pointer;
 }
 
 .RampButton {

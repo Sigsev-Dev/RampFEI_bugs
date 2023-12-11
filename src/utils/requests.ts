@@ -41,20 +41,24 @@ export const getTransactionsPaginated = ({
 
 export const getTransactionsByEmployee = ({ employeeId }: RequestByEmployeeParams) => {
   if (!employeeId) {
-    throw new Error("Employee id cannot be empty")
+    return data.transactions;
   }
 
   return data.transactions.filter((transaction) => transaction.employee.id === employeeId)
 }
 
+
 export const setTransactionApproval = ({ transactionId, value }: SetTransactionApprovalParams): void => {
-  const transaction = data.transactions.find(
+
+  const transaction = mockData.transactions.find(
     (currentTransaction) => currentTransaction.id === transactionId
   )
 
   if (!transaction) {
     throw new Error("Invalid transaction to approve")
   }
-
   transaction.approved = value
+  console.log(value)
 }
+
+

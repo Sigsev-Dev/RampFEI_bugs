@@ -1,7 +1,15 @@
 import { useCallback, useState } from "react"
 import { PaginatedRequestParams, PaginatedResponse, Transaction } from "../utils/types"
-import { PaginatedTransactionsResult } from "./types"
+
 import { useCustomFetch } from "./useCustomFetch"
+
+export interface PaginatedTransactionsResult {
+  data: PaginatedResponse<Transaction[]> | null
+  loading: boolean
+  fetchAll: (append?: boolean) => Promise<void>
+  invalidateData: () => void
+  hasLoadedAllPages: boolean
+}
 
 export function usePaginatedTransactions(): PaginatedTransactionsResult {
   const { fetchWithCache, loading } = useCustomFetch()
@@ -9,7 +17,7 @@ export function usePaginatedTransactions(): PaginatedTransactionsResult {
     Transaction[]
   > | null>(null)
 
-  const fetchAll = useCallback(async () => {
+  const fetchAll = useCallback(async (append = true) => {
     const response = await fetchWithCache<PaginatedResponse<Transaction[]>, PaginatedRequestParams>(
       "paginatedTransactions",
       {
@@ -21,8 +29,13 @@ export function usePaginatedTransactions(): PaginatedTransactionsResult {
       if (response === null || previousResponse === null) {
         return response
       }
+      //Modified reponse to append the data together
+      const newTransactions = response.data
+      const oldTransactions = previousResponse.data
 
-      return { data: response.data, nextPage: response.nextPage }
+      const updatedTransactions = append ? [...oldTransactions,...newTransactions] : newTransactions
+
+      return { data: updatedTransactions, nextPage: response.nextPage }
     })
   }, [fetchWithCache, paginatedTransactions])
 
@@ -30,5 +43,8 @@ export function usePaginatedTransactions(): PaginatedTransactionsResult {
     setPaginatedTransactions(null)
   }, [])
 
-  return { data: paginatedTransactions, loading, fetchAll, invalidateData }
-}
+  const hasLoadedAllPages = paginatedTransactions !== null && paginatedTransactions.nextPage === null
+
+
+  return { data: paginatedTransactions, loading, fetchAll, invalidateData, hasLoadedAllPages } }
+

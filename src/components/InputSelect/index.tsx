@@ -71,7 +71,8 @@ export function InputSelect<TItem>({
                 "RampInputSelect--dropdown-container-opened": isOpen,
               })}
               {...getMenuProps()}
-              style={{ top: dropdownPosition.top, left: dropdownPosition.left }}
+              // Added position set to absolute so that on scroll dropdown will be positioned correctly
+              style={{position: 'absolute', top: dropdownPosition.top, left: dropdownPosition.left }}
             >
               {renderItems()}
             </div>
@@ -123,9 +124,22 @@ const getDropdownPosition: GetDropdownPositionFn = (target) => {
     const { scrollY } = window
     return {
       top: scrollY + top + 63,
-      left,
+      left
     }
   }
 
   return { top: 0, left: 0 }
 }
+
+//Added event listener to run getDropdownPosition function on window resize
+window.addEventListener("resize", () => {
+  const dropdownContainer = document.querySelector(".RampInputSelect--dropdown-container") as HTMLElement | null
+  if (dropdownContainer) {
+    const target = dropdownContainer.previousSibling
+    if (target instanceof Element) {
+      const dropdownPosition = getDropdownPosition(target)
+      dropdownContainer.style.top = `${dropdownPosition.top}px`
+      dropdownContainer.style.left = `${dropdownPosition.left}px`
+    }
+  }
+})
